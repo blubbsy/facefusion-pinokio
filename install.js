@@ -1,4 +1,27 @@
+const { execSync } = require('child_process');
 const path = require('path');
+
+function getLatestTag()
+{
+	try
+	{
+		const output = execSync('git ls-remote --tags --refs https://github.com/facefusion/facefusion refs/tags/[0-9]*.[0-9]*.[0-9]*', { encoding: 'utf-8', timeout: 10000 });
+		const tags = output.trim().split('\n')
+			.map(line => line.split('refs/tags/').at(1)?.trim())
+			.filter(tag => tag && /^\d+\.\d+\.\d+$/.test(tag));
+
+		if (tags.length > 0)
+		{
+			tags.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+			return tags.at(-1);
+		}
+	}
+	catch
+	{
+		// fallback
+	}
+	return '3.9.2';
+}
 
 function install(kernel)
 {
@@ -25,6 +48,7 @@ function install(kernel)
 
 module.exports = async kernel =>
 {
+	const tag = getLatestTag();
 	const config =
 	{
 		run:
@@ -33,7 +57,7 @@ module.exports = async kernel =>
 				method: 'shell.run',
 				params:
 				{
-					message: 'git clone https://github.com/facefusion/facefusion --branch 3.9.2 --single-branch'
+					message: `git clone https://github.com/facefusion/facefusion --branch ${tag} --single-branch`
 				}
 			},
 			{
