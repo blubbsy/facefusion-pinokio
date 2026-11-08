@@ -40,7 +40,30 @@ function getLatestTag()
 	return '3.9.2';
 }
 
-module.exports = () =>
+function install(kernel)
+{
+	const { platform, gpu } = kernel;
+
+	if (platform === 'linux' && gpu === 'amd')
+	{
+		return 'python install.py migraphx';
+	}
+	if (platform === 'win32' && gpu === 'amd')
+	{
+		return 'python install.py directml';
+	}
+	if ((platform === 'linux' || platform === 'win32') && gpu === 'intel')
+	{
+		return 'python install.py openvino';
+	}
+	if ((platform === 'linux' || platform === 'win32') && gpu === 'nvidia')
+	{
+		return 'python install.py cuda@12';
+	}
+	return 'python install.py default';
+}
+
+module.exports = async kernel =>
 {
 	const tag = getLatestTag();
 	const config =
@@ -68,6 +91,18 @@ module.exports = () =>
 				{
 					message: `git checkout ${tag}`,
 					path: 'facefusion'
+				}
+			},
+			{
+				method: 'shell.run',
+				params:
+				{
+					message: install(kernel),
+					path: 'facefusion',
+					conda:
+					{
+						path: path.resolve(__dirname, '.env')
+					}
 				}
 			}
 		]

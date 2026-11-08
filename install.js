@@ -71,7 +71,11 @@ module.exports = async kernel =>
 				method: 'shell.run',
 				params:
 				{
-					message: 'conda install python=3.12 --yes',
+					message:
+					[
+						'conda env config vars unset PATH',
+						'conda install python=3.12 --yes'
+					],
 					conda:
 					{
 						path: path.resolve(__dirname, '.env')
@@ -94,7 +98,7 @@ module.exports = async kernel =>
 				method: 'shell.run',
 				params:
 				{
-					message: 'conda install conda-forge::openvino=2025.1.0 --yes',
+					message: 'conda install conda-forge::openvino=2025.3.0 --yes',
 					conda:
 					{
 						path: path.resolve(__dirname, '.env')
@@ -108,7 +112,7 @@ module.exports = async kernel =>
 				{
 					message:
 					[
-						'conda install nvidia/label/cuda-12.9.1::cuda-runtime nvidia/label/cudnn-9.10.2::cudnn --yes',
+						'conda install -c nvidia/label/cuda-12.9.1 -c nvidia/label/cudnn-9.10.2 -c conda-forge cuda-runtime cudnn --yes',
 						'pip install tensorrt==10.12.0.36 --extra-index-url https://pypi.nvidia.com'
 					],
 					conda:
